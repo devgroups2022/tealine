@@ -1,0 +1,83 @@
+[2022-08-03T16:36:08.025] [DEBUG] - Connected to database
+[2022-08-03T16:36:08.036] [DEBUG] - Server started listening at port 3000
+[2022-08-03T16:39:56.651] [ERROR] - TypeError: method.call is not a function
+    at E:\ZANOCH\MaterialTrackPro-Central-Handler\src\index.js:248:6
+    at Layer.handle [as handle_request] (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\express\lib\router\layer.js:95:5)
+    at E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\express\lib\router\index.js:280:10)
+    at Function.handle (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\express\lib\router\index.js:175:3)
+    at router (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\express\lib\router\index.js:47:12)
+[2022-08-03T16:42:01.030] [DEBUG] - Connected to database
+[2022-08-03T16:42:01.042] [DEBUG] - Server started listening at port 3000
+[2022-08-03T16:42:05.848] [ERROR] - error: column "dispatched" does not exist
+    at Parser.parseErrorMessage (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:287:98)
+    at Parser.handlePacket (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:126:29)
+    at Parser.parse (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:39:38)
+    at Socket.<anonymous> (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (node:events:526:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at TCP.onStreamRead (node:internal/stream_base_commons:190:23)
+[2022-08-03T16:44:16.258] [ERROR] - error: column "dispatched" does not exist
+    at Parser.parseErrorMessage (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:287:98)
+    at Parser.handlePacket (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:126:29)
+    at Parser.parse (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:39:38)
+    at Socket.<anonymous> (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (node:events:526:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at TCP.onStreamRead (node:internal/stream_base_commons:190:23)
+[2022-08-03T16:44:25.883] [ERROR] - error: column "dispatched" does not exist
+    at Parser.parseErrorMessage (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:287:98)
+    at Parser.handlePacket (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:126:29)
+    at Parser.parse (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:39:38)
+    at Socket.<anonymous> (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (node:events:526:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at TCP.onStreamRead (node:internal/stream_base_commons:190:23)
+[2022-08-03T16:44:34.558] [DEBUG] - Connected to database
+[2022-08-03T16:44:34.571] [DEBUG] - Server started listening at port 3000
+[2022-08-03T16:46:55.344] [DEBUG] - Connected to database
+[2022-08-03T16:46:55.357] [DEBUG] - Server started listening at port 3000
+[2022-08-03T16:47:22.380] [DEBUG] - Connected to database
+[2022-08-03T16:47:22.395] [DEBUG] - Server started listening at port 3000
+[2022-08-03T16:51:53.821] [ERROR] - error: column "herbline_name" does not exist
+    at Parser.parseErrorMessage (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:287:98)
+    at Parser.handlePacket (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:126:29)
+    at Parser.parse (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:39:38)
+    at Socket.<anonymous> (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (node:events:526:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at TCP.onStreamRead (node:internal/stream_base_commons:190:23)
+[2022-08-04T12:25:11.103] [DEBUG] - Connected to database
+[2022-08-04T12:25:11.116] [DEBUG] - Server started listening at port 3000
+[2022-08-04T12:25:53.802] [ERROR] - error: column "herbline_name" does not exist
+    at Parser.parseErrorMessage (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:287:98)
+    at Parser.handlePacket (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:126:29)
+    at Parser.parse (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\parser.js:39:38)
+    at Socket.<anonymous> (E:\ZANOCH\MaterialTrackPro-Central-Handler\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (node:events:526:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at TCP.onStreamRead (node:internal/stream_base_commons:190:23)
+[2022-08-22T16:58:40.358] [DEBUG] - Connected to database
+[2022-08-22T16:58:40.369] [DEBUG] - Server started listening at port 3000
+[2022-08-22T17:02:13.329] [DEBUG] - Connected to database
+[2022-08-22T17:02:13.342] [DEBUG] - Server started listening at port 3000
+[2022-08-22T17:16:01.429] [DEBUG] - Connected to database
+[2022-08-22T17:16:01.448] [DEBUG] - Server started listening at port 3000
+[2022-08-22T19:56:31.534] [DEBUG] - Connected to database
+[2022-08-22T19:56:31.545] [DEBUG] - Server started listening at port 3000
+[2022-08-24T19:31:59.418] [DEBUG] - Connected to database
+[2022-08-24T19:31:59.435] [DEBUG] - Server started listening at port 3000
