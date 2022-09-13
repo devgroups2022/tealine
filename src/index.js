@@ -306,6 +306,7 @@ app.use((err, req, res, next) => {
     .send(process.env.NODE_ENV === "production" ? httpCodes[500] : err.stack);
 });
 
-app.listen(3000, () => {
-  logger.debug("Server started listening at port 3000");
+const port = process.env.PORT || 3000
+app.listen(port, () => {
+  logger.debug(`Server started listening at port ${port}`);
 });
