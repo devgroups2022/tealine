@@ -35,14 +35,17 @@ const logger = log4js.getLogger(
   process.env.NODE_ENV === "production" ? "default" : "default.debug"
 );
 
-["uncaughtException", "unhandledRejection"].forEach((event) => {
-  process.on(event, (err, source) => {
-    let error = types.isNativeError(err) ? err : new Error(err);
-    if (types.isPromise(source)) error.name = error.name.concat("<Promise>");
-    logger.error(error);
-    process.exit(1);
+logger
+  .debug(`Selected environment: ${process.env.NODE_ENV}`)
+
+  [("uncaughtException", "unhandledRejection")].forEach((event) => {
+    process.on(event, (err, source) => {
+      let error = types.isNativeError(err) ? err : new Error(err);
+      if (types.isPromise(source)) error.name = error.name.concat("<Promise>");
+      logger.error(error);
+      process.exit(1);
+    });
   });
-});
 
 if (!["development", "production"].includes(process.env.NODE_ENV)) {
   throw new Error(
@@ -306,7 +309,7 @@ app.use((err, req, res, next) => {
     .send(process.env.NODE_ENV === "production" ? httpCodes[500] : err.stack);
 });
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   logger.debug(`Server started listening at port ${port}`);
 });
