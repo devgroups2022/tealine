@@ -52,6 +52,7 @@ if (!["development", "production"].includes(process.env.NODE_ENV)) {
   );
 }
 
+const path = require("path");
 const express = require("express");
 const { object, string, number, array, boolean } = require("yup");
 const httpCodes = require("./http_codes");
@@ -286,6 +287,10 @@ userRoute.get("/scan", (req, res, next) => {
 
 app.use("/app/admin", adminRoute);
 app.use("/app", userRoute);
+
+app.get("/log", (req, res) => {
+  res.sendFile(path.join(process.cwd(), "app.log"));
+});
 
 app.get("*", (req, res, next) => {
   next({ status: 404 });
