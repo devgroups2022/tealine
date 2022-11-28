@@ -1,12 +1,10 @@
-// db connections
-const {Pool} = require('pg')
-
+const { Pool } = require("pg");
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-})
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
 
 function hasParams(obj) {
   for (_ in obj) return true;
@@ -19,8 +17,8 @@ async function insertTealine({
   grade,
   no_of_bags,
   weight_per_bag,
+  broker,
   garden,
-  garden_sub,
 }) {
   const client = await pool.connect();
 
@@ -29,7 +27,7 @@ async function insertTealine({
     "  INSERT INTO item(item_code) VALUES ($1) RETURNING created_ts" +
     ") " +
     "INSERT INTO tealine" +
-    "(item_code, created_ts, invoice_no, grade, no_of_bags, weight_per_bag, garden, garden_sub) " +
+    "(item_code, created_ts, invoice_no, grade, no_of_bags, weight_per_bag, broker, garden) " +
     "SELECT $1, created_ts, $2, $3, $4, $5, $6, $7 " +
     "FROM new_row " +
     "RETURNING created_ts;";
@@ -39,8 +37,8 @@ async function insertTealine({
     grade,
     no_of_bags,
     weight_per_bag,
+    broker,
     garden,
-    garden_sub,
   ]);
 
   client.release();
@@ -54,11 +52,11 @@ async function readTealine(data) {
   const client = await pool.connect();
 
   const tealineQueryParams = [
-    "SELECT item_code, created_ts, garden, garden_sub FROM tealine;",
+    "SELECT item_code, created_ts, broker, garden FROM tealine;",
   ];
   if (hasParams(data)) {
     tealineQueryParams[0] =
-      "SELECT item_code, created_ts, invoice_no, grade, no_of_bags, garden, garden_sub " +
+      "SELECT item_code, created_ts, invoice_no, grade, no_of_bags, broker, garden " +
       `FROM tealine WHERE ${Object.keys(data)
         .map((key, index) => `${key} = $${index + 1}`)
         .join(" AND ")};`;
@@ -303,9 +301,8 @@ async function insertFlavorsheet({
   grade,
   remarks,
   no_of_batches,
-  tealine,
+  blendsheet,
 }) {
-  console.log(tealine);
   const client = await pool.connect();
 
   const flavorsheetQuery =
@@ -316,10 +313,10 @@ async function insertFlavorsheet({
     "  (item_code, created_ts, flavorsheet_no, standard, grade, remarks, no_of_batches) " +
     "  SELECT $1, created_ts, $2, $3, $4, $5, $6 " +
     "  FROM new_row " +
-    "), blend_mix_row AS (" +
+    "), flavor_mix_row AS (" +
     "  INSERT INTO flavorsheet_mix" +
-    "  (flavorsheet_no, tealine_code, no_of_bags) " +
-    "  SELECT $2, unnest($7::json[])->>'tealine_code', (unnest($7::json[])->>'no_of_bags')::integer" +
+    "  (flavorsheet_no, blendsheet_code, no_of_bags) " +
+    "  SELECT $2, unnest($7::json[])->>'blendsheet_code', (unnest($7::json[])->>'no_of_bags')::integer" +
     ") SELECT created_ts FROM new_row;";
   const flavorsheetQueryRes = await client.query(flavorsheetQuery, [
     item_code,
@@ -328,7 +325,7 @@ async function insertFlavorsheet({
     grade,
     remarks,
     no_of_batches,
-    tealine,
+    blendsheet,
   ]);
 
   client.release();
@@ -357,8 +354,8 @@ async function readFlavorsheet(data) {
     flavorsheetQueryParams[0] =
       "SELECT b.item_code, b.created_ts, b.flavorsheet_no, b.no_of_batches, b.batches_completed, " +
       "json_agg(" +
-      "  json_build_object('flavoursheet_no', bm.blendsheet_code, 'no_of_bags', bm.no_of_bags)" +
-      ") AS tealine " +
+      "  json_build_object('blendsheet_code', bm.blendsheet_code, 'no_of_bags', bm.no_of_bags)" +
+      ") AS blendsheet " +
       "FROM flavorsheet b INNER JOIN flavorsheet_mix bm " +
       "USING(flavorsheet_no) " +
       `WHERE ${Object.keys(data)
@@ -559,24 +556,85 @@ async function readBarcode({ table_name, barcode }) {
     scanQueryRes.rows[0].scan_result && scanQueryRes.rows[0].scan_result[0]
   );
 }
-// start of dispatchRecord
-async function dispatchRecord({ table_name, barcode }) {
+// start of update herbline record status
+async function updateHerblineRecordStatus({ barcode }) {
   const client = await pool.connect();
 
-  const dispatchQuery = `SELECT * FROM dispatch_record($1, $2) AS dispatch_result;`;
-  const dispatchQueryRes = await client.query(dispatchQuery, [
-    table_name,
-    barcode,
-  ]);
-  console.log(dispatchQueryRes);
+  const herblineRecordQuery =
+    "UPDATE herbline_record " +
+    "SET status = 'DISPATCHED' " +
+    "WHERE barcode = $1 " +
+    "RETURNING barcode, status;";
+
+  const herblineRecordQueryRes = await client.query(
+    client,
+    herblineRecordQuery,
+    [barcode]
+  );
 
   client.release();
-  return (
-    dispatchQueryRes.rows[0].dispatch_result &&
-    dispatchQueryRes.rows[0].dispatch_result[0]
-  );
+  return herblineRecordQueryRes.rows[0];
 }
-// end of dispatchRecord
+// end of update herbline record status
+
+// Start of update flavorsheet record status
+async function updateFlavorsheetRecordStatus({ barcode }) {
+  const client = await pool.connect();
+
+  const flavorsheetRecordQuery =
+    "UPDATE flavorsheet_record " +
+    "SET status = 'DISPATCHED' " +
+    "WHERE barcode = $1 " +
+    "RETURNING barcode, status;";
+
+  const flavorsheetRecordQueryRes = await client.query(
+    client,
+    flavorsheetRecordQuery,
+    [barcode]
+  );
+
+  client.release();
+  return flavorsheetRecordQueryRes.rows[0];
+}
+// End of update flavorsheet record status
+
+// Start of update blendsheet record status
+async function updateBlendsheetRecordStatus({ barcode, reduced_by }) {
+  const client = await pool.connect();
+
+  const blendsheetRecordQuery = [
+    "UPDATE blendsheet_record " +
+      "SET status = 'DISPATCHED' " +
+      "WHERE barcode = $1 " +
+      "RETURNING barcode, status;",
+  ];
+  if (reduced_by) {
+    blendsheetRecordQuery[0] =
+      "WITH query_row AS (" +
+      "  SELECT remaining - $2 AS remaining, barcode " +
+      "  FROM tealine_record " +
+      "  WHERE barcode = $1" +
+      ")" +
+      "UPDATE tealine_record " +
+      "SET status = CASE " +
+      "  WHEN query_row.remaining = 0 THEN 'PROCESSED' " +
+      "  ELSE 'IN_PROCESS' " +
+      "END, remaining = query_row.remaining " +
+      "FROM query_row " +
+      "WHERE tealine_record.barcode = query_row.barcode " +
+      "RETURNING tealine_record.barcode, status;";
+    blendsheetRecordQuery[1].push(reduced_by);
+  }
+  const blendsheetRecordQueryRes = await client.query.apply(
+    client,
+    blendsheetRecordQuery,
+    [barcode]
+  );
+
+  client.release();
+  return blendsheetRecordQueryRes.rows[0];
+}
+// End of update blendsheet record status
 
 module.exports = {
   insertTealine,
@@ -599,5 +657,7 @@ module.exports = {
   insertLocation,
   readLocation,
   readBarcode,
-  updateSendOffStatus: dispatchRecord,
+  updateHerblineRecordStatus, //updateHerblineRecordStatus
+  updateFlavorsheetRecordStatus,
+  updateBlendsheetRecordStatus,
 };

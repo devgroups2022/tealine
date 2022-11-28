@@ -35,8 +35,6 @@ const logger = log4js.getLogger(
   process.env.NODE_ENV === "production" ? "default" : "default.debug"
 );
 
-logger.debug(`Selected environment: ${process.env.NODE_ENV}`);
-
 ["uncaughtException", "unhandledRejection"].forEach((event) => {
   process.on(event, (err, source) => {
     let error = types.isNativeError(err) ? err : new Error(err);
@@ -52,7 +50,6 @@ if (!["development", "production"].includes(process.env.NODE_ENV)) {
   );
 }
 
-const path = require("path");
 const express = require("express");
 const { object, string, number, array, boolean } = require("yup");
 const httpCodes = require("./http_codes");
@@ -94,8 +91,8 @@ const insertTealineSchema = object({
   grade: string().required(),
   no_of_bags: number().integer().required(),
   weight_per_bag: number().required(),
+  broker: string().required(),
   garden: string().required(),
-  garden_sub: string().required(),
 });
 adminRoute.post("/tealine", validate(insertTealineSchema), (req, res, next) => {
   db.insertTealine(res.locals.validated_params)
@@ -135,7 +132,7 @@ adminRoute.post(
   "/flavorsheet",
   // validate(insertFlavorsheetSchema),
   (req, res, next) => {
-    db.insertFlavorsheet(res.body)
+    db.insertFlavorsheet(req.body)
       .then((result) => res.json(result))
       .catch((e) => next(e));
   }
@@ -243,13 +240,6 @@ userRoute.put("/flavorsheet", (req, res, next) => {
 });
 //end of flavorsheet
 
-// start of dispatch
-userRoute.put("/dispatch", (req, res, next) => {
-  db.dispatchRecord(req.body)
-    .then((data) => res.json(data))
-    .catch((e) => next(e));
-});
-// end of dispatch
 userRoute.get("/location", (req, res, next) => {
   db.readLocation(req.query)
     .then((data) => res.json(data))
@@ -285,12 +275,32 @@ userRoute.get("/scan", (req, res, next) => {
     .catch((e) => next(e));
 });
 
+// start of update herbline record status
+userRoute.put("/herblinerecord", (req, res, next) => {
+  db.updateHerblineRecordStatus(req.body)
+    .then((data) => res.json(data))
+    .catch((e) => next(e));
+});
+// end of update herbline record status
+
+// start of update flavorsheet record status
+userRoute.put("/flavorsheetrecord", (req, res, next) => {
+  db.updateFlavorsheetRecordStatus(req.body)
+    .then((data) => res.json(data))
+    .catch((e) => next(e));
+});
+// end of update flavorsheet record status
+
+// start of update blendsheet record status
+userRoute.put("/blendsheetrecord", (req, res, next) => {
+  db.updateBlendsheetRecordStatus(req.body)
+    .then((data) => res.json(data))
+    .catch((e) => next(e));
+});
+// end of update blendsheet record status
+
 app.use("/app/admin", adminRoute);
 app.use("/app", userRoute);
-
-app.get("/log", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "app.log"));
-});
 
 app.get("*", (req, res, next) => {
   next({ status: 404 });
@@ -313,7 +323,6 @@ app.use((err, req, res, next) => {
     .send(process.env.NODE_ENV === "production" ? httpCodes[500] : err.stack);
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  logger.debug(`Server started listening at port ${port}`);
+app.listen(process.env.PORT, () => {
+  logger.debug(`Server started listening at port ${process.env.PORT}`);
 });
