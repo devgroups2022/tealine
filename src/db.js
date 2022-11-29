@@ -1,9 +1,6 @@
 const { Pool } = require("pg");
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
 });
 
 function hasParams(obj) {
@@ -52,14 +49,45 @@ async function readTealine(data) {
   const client = await pool.connect();
 
   const tealineQueryParams = [
-    "SELECT item_code, created_ts, broker, garden FROM tealine;",
+    "SELECT t.item_code, t.created_ts, t.broker, t.garden " +
+      "FROM tealine t " +
+      "WHERE t.no_of_bags != (" +
+      "  SELECT COUNT(tr.*) " +
+      "  FROM tealine_record tr " +
+      "  WHERE tr.item_code = t.item_code " +
+      "  AND tr.created_ts = t.created_ts" +
+      ");",
   ];
   if (hasParams(data)) {
     tealineQueryParams[0] =
-      "SELECT item_code, created_ts, invoice_no, grade, no_of_bags, broker, garden " +
-      `FROM tealine WHERE ${Object.keys(data)
-        .map((key, index) => `${key} = $${index + 1}`)
-        .join(" AND ")};`;
+      "WITH record_rows AS (" +
+      "  SELECT item_code, created_ts, " +
+      "  row_to_json(tealine_record)::jsonb - '{item_code,created_ts,status,remaining}'::text[] " +
+      "  AS record_data " +
+      "  FROM tealine_record" +
+      ") " +
+      "SELECT t.item_code, t.created_ts, t.invoice_no, t.grade, t.no_of_bags, t.broker, " +
+      "t.garden, array_remove(array_agg(r.record_data), NULL) AS record_list " +
+      "FROM tealine t LEFT JOIN record_rows r " +
+      "ON t.item_code = r.item_code AND t.created_ts = r.created_ts " +
+      `WHERE ${Object.keys(data)
+        .map((key, index) => `t.${key} = $${index + 1}`)
+        .join(" AND ")}` +
+      "GROUP BY t.item_code, t.created_ts;";
+    // "SELECT t.item_code, t.created_ts, t.invoice_no, t.grade, " +
+    // "t.no_of_bags, t.broker, t.garden, ARRAY_AGG(json_build_object( " +
+    // "  'barcode', tr.barcode, " +
+    // "  'store_location', tr.store_location, " +
+    // "  'received_ts', tr.received_ts, " +
+    // "  'gross_weight', tr.gross_weight, " +
+    // "  'bag_weight', tr.bag_weight" +
+    // ")) AS record_list " +
+    // "FROM tealine t, tealine_record tr " +
+    // "WHERE tr.item_code = t.item_code AND tr.created_ts = t.created_ts " +
+    // `AND ${Object.keys(data)
+    //   .map((key, index) => `t.${key} = $${index + 1}`)
+    //   .join(" AND ")} ` +
+    // "GROUP BY t.item_code, t.created_ts;";
     tealineQueryParams.push(Object.keys(data).map((key) => data[key]));
   }
   const tealineQueryRes = await client.query.apply(client, tealineQueryParams);
